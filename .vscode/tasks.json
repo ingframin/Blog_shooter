@@ -18,7 +18,9 @@
                 "-lSDL2",
                 "-lSDL2_image",
                 "-Wall",
-                "-std=c++17"
+                "-Wextra",
+                "-std=c++17",
+                "-O3"
             ]
         }
     ]
