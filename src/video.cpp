@@ -26,6 +26,7 @@ Video::~Video(){
     SDL_DestroyRenderer(rnd);
     SDL_DestroyWindow(wnd);
     SDL_QuitSubSystem(SDL_INIT_VIDEO);
+    SDL_QuitSubSystem(SDL_INIT_EVENTS);
 }
 
 void Video::clear(){
