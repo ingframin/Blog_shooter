@@ -12,6 +12,24 @@ struct Sprite{
     SDL_Rect rect;
     //ID of the texture to be drawn
     uint64_t id;
+
+    Sprite(int x, int y, int width, int height, uint64_t id){
+        rect.x = x;
+        rect.y = y;
+        rect.w = width;
+        rect.h = height;
+        this->id = id;
+    }
+
+    void move(int x, int y){
+        rect.x = x;
+        rect.y = y;
+    }
+
+    void resize(int w, int h){
+        rect.w = w;
+        rect.h = h;
+    }
 };
 
 class Video

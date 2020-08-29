@@ -57,13 +57,8 @@ void Video::flip(){
 Sprite Video::loadTexture(SDL_Surface* srf){
     SDL_Texture* txt = SDL_CreateTextureFromSurface(rnd,srf);
     
-    Sprite sprt;
-    sprt.rect.x = 0;
-    sprt.rect.y = 0;
-    sprt.rect.w = srf->w;
-    sprt.rect.h = srf->h;
-    sprt.id = textures.size();
-
+    Sprite sprt {0,0,srf->w,srf->h,textures.size()};
+    
     textures.push_back(txt);
 
     return sprt;

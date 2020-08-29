@@ -18,11 +18,9 @@ int main(int argc, char *argv[])
     SDL_FreeSurface(tmp);
 
     //Let's move the sprite from 0,0 and reduce its size
-    sprt.rect.x = 350;
-    sprt.rect.y = 100;
-    sprt.rect.h /= 3;
-    sprt.rect.w /= 3;
-
+    sprt.move(350,100); 
+    sprt.resize(sprt.rect.w /3,sprt.rect.h /3);
+    
     bool running = true;//running condition to avoid infinite loop
 
     //Object which will host the events to be processed
