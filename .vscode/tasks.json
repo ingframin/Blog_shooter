@@ -10,6 +10,7 @@
             "args": [
                 "./src/main.cpp",
                 "./src/video.cpp",
+                "./src/geometry.cpp",
                 "-o./build/game.exe",
                 "-L./libs",
                 "-I./include",

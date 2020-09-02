@@ -21,11 +21,13 @@ struct Sprite{
         this->id = id;
     }
 
+    //Move the sprite to position (x;y) in screen coordinates
     void move(int x, int y){
         rect.x = x;
         rect.y = y;
     }
 
+    //Change the size of the rendering rectangle
     void resize(int w, int h){
         rect.w = w;
         rect.h = h;

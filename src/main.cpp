@@ -2,6 +2,7 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "video.h"
+#include "geometry.h"
 
 int main(int argc, char *argv[])
 {
@@ -14,13 +15,15 @@ int main(int argc, char *argv[])
     SDL_Surface* tmp = IMG_Load("concept.png");
     //Generate Sprite
     Sprite sprt = vid.loadTexture(tmp);
+    Sprite sprt2 {sprt};
     //clean up
     SDL_FreeSurface(tmp);
 
     //Let's move the sprite from 0,0 and reduce its size
-    sprt.move(350,100); 
+    sprt.move(350,10); 
     sprt.resize(sprt.rect.w /3,sprt.rect.h /3);
-    
+    sprt2.move(350,250);
+    sprt2.resize(sprt2.rect.w /3,sprt2.rect.h /3);
     bool running = true;//running condition to avoid infinite loop
 
     //Object which will host the events to be processed
@@ -43,9 +46,10 @@ int main(int argc, char *argv[])
         vid.drawLine(100,100,300,300);
         vid.drawLine(300,100, 100,300);
         vid.draw(sprt);
+        vid.draw(sprt2);
         //Blit on screen => More about page flipping and double buffering later in the series
         vid.flip();
-
+        
 
     }
     
