@@ -3,7 +3,14 @@
 #include <SDL2/SDL_image.h>
 #include "video.h"
 #include "geometry.h"
+#define FPS_INTERVAL 1
+#define FPS_120 8
+#define FPS_100 9
+#define FPS_60 16
 
+
+auto speed = 0.5f;
+auto speed2 = 0.3f;
 int main(int argc, char *argv[])
 {
     
@@ -28,9 +35,11 @@ int main(int argc, char *argv[])
 
     //Object which will host the events to be processed
     SDL_Event evt;
-
-
+    auto previous_time = SDL_GetTicks();
+    
     while(running){
+        auto current_time = SDL_GetTicks();
+        auto dt = current_time-previous_time;    
         //While there is an event in the queue, handle it
         while(SDL_PollEvent(&evt)){
             //When the "X" at the top of the window is clicked, exit the loop
@@ -47,10 +56,21 @@ int main(int argc, char *argv[])
         vid.drawLine(300,100, 100,300);
         vid.draw(sprt);
         vid.draw(sprt2);
+        
         //Blit on screen => More about page flipping and double buffering later in the series
         vid.flip();
+        sprt.move(sprt.rect.x+speed*dt,0);
+        if((sprt.rect.x+sprt.rect.w)>800 or sprt.rect.x < 0){
+            speed = -speed;
+        }
+        sprt2.move(0,sprt2.rect.y+speed2*dt);
+        if((sprt2.rect.y+sprt.rect.h)>450 or sprt2.rect.y < 0){
+            speed2 = -speed2;
+        }
+        SDL_Delay(1);
         
-
+        std::cout<<dt<<std::endl;
+        previous_time = current_time;
     }
     
     
