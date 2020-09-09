@@ -9,8 +9,8 @@
 #define FPS_60 16
 
 
-auto speed = 0.5f;
-auto speed2 = 0.3f;
+auto speed = .25f;
+auto speed2 = .25f;
 int main(int argc, char *argv[])
 {
     
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
         if((sprt2.rect.y+sprt.rect.h)>450 or sprt2.rect.y < 0){
             speed2 = -speed2;
         }
-        SDL_Delay(1);
+        SDL_Delay(3);
         
         std::cout<<dt<<std::endl;
         previous_time = current_time;
