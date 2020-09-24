@@ -11,6 +11,7 @@
                 "./src/main.cpp",
                 "./src/video.cpp",
                 "./src/geometry.cpp",
+                "./src/sprite.cpp",
                 "-o./build/game.exe",
                 "-L./libs",
                 "-I./include",
