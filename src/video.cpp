@@ -38,7 +38,7 @@ void Video::clear(){
 
 
 void Video::draw(Sprite& sp){
-    SDL_RenderCopy(rnd,textures[sp.id],NULL,&sp.drawRect());
+    SDL_RenderCopy(rnd,textures[sp.ID()],&sp.srcRect(),&sp.drawRect());
 
 }
 
@@ -59,6 +59,15 @@ Sprite Video::loadTexture(SDL_Surface* srf){
     
     Sprite sprt {0,0,srf->w,srf->h,textures.size()};
     
+    textures.push_back(txt);
+
+    return sprt;
+}
+
+//loads an animated sprite
+Sprite Video::loadAnimation(SDL_Surface* srf, uint16_t numFrames, int frameW){
+    SDL_Texture* txt = SDL_CreateTextureFromSurface(rnd,srf);
+    Sprite sprt {0,0,srf->w,srf->h,textures.size(), numFrames, frameW};
     textures.push_back(txt);
 
     return sprt;

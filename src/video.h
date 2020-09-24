@@ -30,6 +30,8 @@ public:
     void flip();
     //loads a sprite in the sprite buffer and returns its position/id. 
     Sprite loadTexture(SDL_Surface* srf);
+    //loads an animated sprite
+    Sprite loadAnimation(SDL_Surface* srf, uint16_t numFrames, int frameW);
     //removes all texture pointers from the current buffer and destroys them
     void clearTextures();
 };

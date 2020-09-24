@@ -24,6 +24,11 @@ int main(int argc, char *argv[])
     //Generate Sprite
     Sprite sprt = vid.loadTexture(tmp);
     Sprite sprt2 {sprt};
+    //animated numbers
+    SDL_Surface* numsurf = IMG_Load("anim_numbers.png");
+    //The example image is 5 frames of 100 pixel each
+    Sprite nums = vid.loadAnimation(numsurf,5,100);
+    
     //clean up
     SDL_FreeSurface(tmp);
 
@@ -32,15 +37,20 @@ int main(int argc, char *argv[])
     sprt.resize(sprt.drawRect().w /3,sprt.drawRect().h /3);
     sprt2.move(350,250);
     sprt2.resize(sprt2.drawRect().w /3,sprt2.drawRect().h /3);
+    nums.move(400,200);
+    nums.resize(200,200);
     bool running = true;//running condition to avoid infinite loop
 
     //Object which will host the events to be processed
     SDL_Event evt;
     auto previous_time = SDL_GetTicks();
-    
+    auto animation_start = SDL_GetTicks();//This is a ugly hack until we have our timer objects
+
     while(running){
         auto current_time = SDL_GetTicks();
-        auto dt = current_time-previous_time;    
+        auto anim_current = SDL_GetTicks();
+        auto dt = current_time-previous_time;
+        auto anim_dt = anim_current - animation_start;    
         //While there is an event in the queue, handle it
         while(SDL_PollEvent(&evt)){
             //When the "X" at the top of the window is clicked, exit the loop
@@ -57,7 +67,7 @@ int main(int argc, char *argv[])
         vid.drawLine(300,100, 100,300);
         vid.draw(sprt);
         vid.draw(sprt2);
-        
+        vid.draw(nums);
         //Blit on screen => More about page flipping and double buffering later in the series
         vid.flip();
         sprt.move(sprt.drawRect().x+speed*dt,0);
@@ -68,10 +78,18 @@ int main(int argc, char *argv[])
         if((sprt2.drawRect().y+sprt.drawRect().h)>450 or sprt2.drawRect().y < 0){
             speed2 = -speed2;
         }
-        SDL_Delay(3);
+
+
+
+        SDL_Delay(2);
         
         std::cout<<dt<<std::endl;
         previous_time = current_time;
+        if(anim_dt >= 500){
+            animation_start = anim_current;
+            nums.nextFrame();
+        }
+        
     }
     
     
