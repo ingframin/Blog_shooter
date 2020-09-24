@@ -38,7 +38,7 @@ void Video::clear(){
 
 
 void Video::draw(Sprite& sp){
-    SDL_RenderCopy(rnd,textures[sp.id],NULL,&sp.rect);
+    SDL_RenderCopy(rnd,textures[sp.id],NULL,&sp.drawRect());
 
 }
 

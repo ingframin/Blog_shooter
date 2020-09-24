@@ -3,6 +3,7 @@
 #include <SDL2/SDL_image.h>
 #include "video.h"
 #include "geometry.h"
+#include "sprite.h"
 #define FPS_INTERVAL 1
 #define FPS_120 8
 #define FPS_100 9
@@ -28,9 +29,9 @@ int main(int argc, char *argv[])
 
     //Let's move the sprite from 0,0 and reduce its size
     sprt.move(350,10); 
-    sprt.resize(sprt.rect.w /3,sprt.rect.h /3);
+    sprt.resize(sprt.drawRect().w /3,sprt.drawRect().h /3);
     sprt2.move(350,250);
-    sprt2.resize(sprt2.rect.w /3,sprt2.rect.h /3);
+    sprt2.resize(sprt2.drawRect().w /3,sprt2.drawRect().h /3);
     bool running = true;//running condition to avoid infinite loop
 
     //Object which will host the events to be processed
@@ -59,12 +60,12 @@ int main(int argc, char *argv[])
         
         //Blit on screen => More about page flipping and double buffering later in the series
         vid.flip();
-        sprt.move(sprt.rect.x+speed*dt,0);
-        if((sprt.rect.x+sprt.rect.w)>800 or sprt.rect.x < 0){
+        sprt.move(sprt.drawRect().x+speed*dt,0);
+        if((sprt.drawRect().x+sprt.drawRect().w)>800 or sprt.drawRect().x < 0){
             speed = -speed;
         }
-        sprt2.move(0,sprt2.rect.y+speed2*dt);
-        if((sprt2.rect.y+sprt.rect.h)>450 or sprt2.rect.y < 0){
+        sprt2.move(0,sprt2.drawRect().y+speed2*dt);
+        if((sprt2.drawRect().y+sprt.drawRect().h)>450 or sprt2.drawRect().y < 0){
             speed2 = -speed2;
         }
         SDL_Delay(3);
