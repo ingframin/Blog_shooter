@@ -26,7 +26,7 @@ public:
 private:
     //Drawing area in screen coordinates
     SDL_Rect rect;
-    SDL_Rect drw;
+    
     
 };
 
