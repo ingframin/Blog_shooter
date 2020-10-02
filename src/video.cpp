@@ -7,7 +7,7 @@ Video::Video(const std::string& title,int width,int height){
         SDL_Init(SDL_INIT_VIDEO);
     }
     
-    wnd = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_SHOWN);
+    wnd = SDL_CreateWindow(title.c_str(),SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED,width,height,SDL_WINDOW_SHOWN|SDL_WINDOW_FULLSCREEN);
     if(wnd == NULL){
         // In the case that the window could not be made...
         std::cout<<"Could not create window: "<<SDL_GetError()<<std::endl;

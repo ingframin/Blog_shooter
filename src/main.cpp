@@ -8,33 +8,51 @@
 
 auto speed = .25f;
 auto speed2 = .25f;
+auto speed_num = .25f;
 
-//running condition to avoid infinite loop
-bool running = true;
+//Commands to dispatch
+enum commands{
+    EXIT, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, NUM_EVENTS
+};
+
+bool cmd_queue[NUM_EVENTS];
 
 void manageInput(){
 
         SDL_PumpEvents();
-        //Object which will host the events to be processed
-        SDL_Event evt;
-        //While there is an event in the queue, handle it
-        while(SDL_PollEvent(&evt)){
-            //When the "X" at the top of the window is clicked, exit the loop
-            if(evt.type == SDL_QUIT){
-                running = false;
-            }
-        }
-
+        // //Object which will host the events to be processed
+        // SDL_Event evt;
+        // //While there is an event in the queue, handle it
+        // while(SDL_PollEvent(&evt)){
+        //     //When the "X" at the top of the window is clicked, exit the loop
+        //     if(evt.type == SDL_QUIT){
+        //         events[EXIT] = true;
+        //     }
+        // }
         
         //get keyboard input
         const Uint8* keys = SDL_GetKeyboardState(NULL);
+        //Depending on input -> dispatch command
+        //This depends on the current state!
         if(keys[SDL_SCANCODE_ESCAPE]){
-            running = false;
+            cmd_queue[EXIT] = true;
+        }
+
+        if(keys[SDL_SCANCODE_UP]){
+            cmd_queue[MOVE_UP] = true;
+        }
+        if(keys[SDL_SCANCODE_DOWN]){
+            cmd_queue[MOVE_DOWN] = true;
         }
         
-                
+        if(keys[SDL_SCANCODE_RIGHT]){
+            cmd_queue[MOVE_RIGHT] = true;
+        }
+        if(keys[SDL_SCANCODE_LEFT]){
+            cmd_queue[MOVE_LEFT] = true;
+        }
         
-
+               
 }
 
 int main(int argc, char *argv[])
@@ -42,7 +60,7 @@ int main(int argc, char *argv[])
     
     //Build the window with title "Blog Shooter".
     //The window is centered in the screen, it is 800 pixels wide and 450 pixels high
-    Video vid = Video("Blog Shooter!",800,450);
+    Video vid = Video("Blog Shooter!",1280,720);
     //Load the picture
     IMG_Init(IMG_INIT_PNG);
     SDL_Surface* tmp = IMG_Load("concept.png");
@@ -69,7 +87,7 @@ int main(int argc, char *argv[])
     auto previous_time = SDL_GetTicks();
     auto animation_start = SDL_GetTicks();//This is a ugly hack until we have our timer objects
 
-    while(running){
+    while(!cmd_queue[EXIT]){
         auto current_time = SDL_GetTicks();
         auto anim_current = SDL_GetTicks();
         auto dt = current_time-previous_time;
@@ -97,9 +115,7 @@ int main(int argc, char *argv[])
             speed2 = -speed2;
         }
 
-
-
-        SDL_Delay(FPS_INTERVAL);
+        
         
         std::cout<<dt<<std::endl;
         previous_time = current_time;
@@ -107,7 +123,23 @@ int main(int argc, char *argv[])
             animation_start = anim_current;
             nums.nextFrame();
         }
-        
+        if(cmd_queue[MOVE_UP]){
+            nums.move(nums.drawRect().x,nums.drawRect().y-speed_num*dt);
+            cmd_queue[MOVE_UP] = false;
+        }
+        if(cmd_queue[MOVE_DOWN]){
+            nums.move(nums.drawRect().x,nums.drawRect().y+speed_num*dt);
+            cmd_queue[MOVE_DOWN] = false;
+        }
+        if(cmd_queue[MOVE_RIGHT]){
+            nums.move(nums.drawRect().x+speed_num*dt,nums.drawRect().y);
+            cmd_queue[MOVE_RIGHT] = false;
+        }
+        if(cmd_queue[MOVE_LEFT]){
+            nums.move(nums.drawRect().x-speed_num*dt,nums.drawRect().y);
+            cmd_queue[MOVE_LEFT] = false;
+        }
+        SDL_Delay(FPS_INTERVAL);       
     }
     
     
