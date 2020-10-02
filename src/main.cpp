@@ -4,14 +4,39 @@
 #include "video.h"
 #include "geometry.h"
 #include "sprite.h"
-#define FPS_INTERVAL 1
-#define FPS_120 8
-#define FPS_100 9
-#define FPS_60 16
-
+#define FPS_INTERVAL 2
 
 auto speed = .25f;
 auto speed2 = .25f;
+
+//running condition to avoid infinite loop
+bool running = true;
+
+void manageInput(){
+
+        SDL_PumpEvents();
+        //Object which will host the events to be processed
+        SDL_Event evt;
+        //While there is an event in the queue, handle it
+        while(SDL_PollEvent(&evt)){
+            //When the "X" at the top of the window is clicked, exit the loop
+            if(evt.type == SDL_QUIT){
+                running = false;
+            }
+        }
+
+        
+        //get keyboard input
+        const Uint8* keys = SDL_GetKeyboardState(NULL);
+        if(keys[SDL_SCANCODE_ESCAPE]){
+            running = false;
+        }
+        
+                
+        
+
+}
+
 int main(int argc, char *argv[])
 {
     
@@ -39,10 +64,8 @@ int main(int argc, char *argv[])
     sprt2.resize(sprt2.drawRect().w /3,sprt2.drawRect().h /3);
     nums.move(400,200);
     nums.resize(200,200);
-    bool running = true;//running condition to avoid infinite loop
-
-    //Object which will host the events to be processed
-    SDL_Event evt;
+    
+    
     auto previous_time = SDL_GetTicks();
     auto animation_start = SDL_GetTicks();//This is a ugly hack until we have our timer objects
 
@@ -51,13 +74,8 @@ int main(int argc, char *argv[])
         auto anim_current = SDL_GetTicks();
         auto dt = current_time-previous_time;
         auto anim_dt = anim_current - animation_start;    
-        //While there is an event in the queue, handle it
-        while(SDL_PollEvent(&evt)){
-            //When the "X" at the top of the window is clicked, exit the loop
-            if(evt.type == SDL_QUIT){
-                running = false;
-            }
-        }
+        manageInput();
+        
         //clear screen
         vid.clear();
         //Set draw color to yellow
@@ -81,7 +99,7 @@ int main(int argc, char *argv[])
 
 
 
-        SDL_Delay(2);
+        SDL_Delay(FPS_INTERVAL);
         
         std::cout<<dt<<std::endl;
         previous_time = current_time;
