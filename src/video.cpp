@@ -13,7 +13,7 @@ Video::Video(const std::string& title,int width,int height){
         std::cout<<"Could not create window: "<<SDL_GetError()<<std::endl;
         exit(-1);
     }
-    rnd = SDL_CreateRenderer(wnd,-1,SDL_RENDERER_ACCELERATED);
+    rnd = SDL_CreateRenderer(wnd,-1,SDL_RENDERER_ACCELERATED|SDL_RENDERER_PRESENTVSYNC);
     if(rnd == NULL){
         std::cout<<"Could not create renderer: "<<SDL_GetError()<<std::endl;
         exit(-1);
