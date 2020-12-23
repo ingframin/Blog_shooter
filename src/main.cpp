@@ -20,15 +20,15 @@ bool cmd_queue[NUM_EVENTS];
 void manageInput(){
 
         SDL_PumpEvents();
-        // //Object which will host the events to be processed
-        // SDL_Event evt;
-        // //While there is an event in the queue, handle it
-        // while(SDL_PollEvent(&evt)){
-        //     //When the "X" at the top of the window is clicked, exit the loop
-        //     if(evt.type == SDL_QUIT){
-        //         events[EXIT] = true;
-        //     }
-        // }
+        //Object which will host the events to be processed
+        SDL_Event evt;
+        //While there is an event in the queue, handle it
+        while(SDL_PollEvent(&evt)){
+            //When the "X" at the top of the window is clicked, exit the loop
+            if(evt.type == SDL_QUIT){
+                cmd_queue[EXIT] = true;
+            }
+        }
         
         //get keyboard input
         const Uint8* keys = SDL_GetKeyboardState(NULL);
@@ -51,8 +51,7 @@ void manageInput(){
         if(keys[SDL_SCANCODE_LEFT]){
             cmd_queue[MOVE_LEFT] = true;
         }
-        
-               
+                       
 }
 
 int main(int argc, char *argv[])
@@ -82,8 +81,7 @@ int main(int argc, char *argv[])
     sprt2.resize(sprt2.drawRect().w /3,sprt2.drawRect().h /3);
     nums.move(400,200);
     nums.resize(200,200);
-    
-    
+   
     auto previous_time = SDL_GetTicks();
     auto animation_start = SDL_GetTicks();//This is a ugly hack until we have our timer objects
 
@@ -114,10 +112,8 @@ int main(int argc, char *argv[])
         if((sprt2.drawRect().y+sprt.drawRect().h)>450 or sprt2.drawRect().y < 0){
             speed2 = -speed2;
         }
-
         
-        
-        std::cout<<dt<<std::endl;
+        // std::cout<<dt<<std::endl;
         previous_time = current_time;
         if(anim_dt >= 500){
             animation_start = anim_current;
