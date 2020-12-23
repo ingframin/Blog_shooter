@@ -46,7 +46,8 @@ int main(int argc, char *argv[])
     
     //clean up
     SDL_FreeSurface(tmp);
-
+    SDL_FreeSurface(numsurf);
+    
     //Let's move the sprite from 0,0 and reduce its size
     sprt.move(350,10); 
     sprt.resize(sprt.drawRect().w /3,sprt.drawRect().h /3);
@@ -105,7 +106,7 @@ int main(int argc, char *argv[])
         if(keys[SDL_SCANCODE_RIGHT]){
             cmd_queue.push_back({ MOVE_RIGHT, nums.ID()});
         }
-        
+
         if(keys[SDL_SCANCODE_LEFT]){
             cmd_queue.push_back({MOVE_LEFT, nums.ID()});
         }
