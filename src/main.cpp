@@ -1,4 +1,6 @@
 #include <iostream>
+#include <utility>
+#include <vector>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "video.h"
@@ -6,53 +8,21 @@
 #include "sprite.h"
 #define FPS_INTERVAL 2
 
+bool running = true;
+
 auto speed = .25f;
 auto speed2 = .25f;
 auto speed_num = .25f;
 
 //Commands to dispatch
-enum commands{
-    EXIT, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT, NUM_EVENTS
+enum Command{
+    EXIT, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT
 };
 
-bool cmd_queue[NUM_EVENTS];
 
-void manageInput(){
+typedef std::pair<Command,uint64_t> Cmd;
 
-        SDL_PumpEvents();
-        //Object which will host the events to be processed
-        SDL_Event evt;
-        //While there is an event in the queue, handle it
-        while(SDL_PollEvent(&evt)){
-            //When the "X" at the top of the window is clicked, exit the loop
-            if(evt.type == SDL_QUIT){
-                cmd_queue[EXIT] = true;
-            }
-        }
-        
-        //get keyboard input
-        const Uint8* keys = SDL_GetKeyboardState(NULL);
-        //Depending on input -> dispatch command
-        //This depends on the current state!
-        if(keys[SDL_SCANCODE_ESCAPE]){
-            cmd_queue[EXIT] = true;
-        }
-
-        if(keys[SDL_SCANCODE_UP]){
-            cmd_queue[MOVE_UP] = true;
-        }
-        if(keys[SDL_SCANCODE_DOWN]){
-            cmd_queue[MOVE_DOWN] = true;
-        }
-        
-        if(keys[SDL_SCANCODE_RIGHT]){
-            cmd_queue[MOVE_RIGHT] = true;
-        }
-        if(keys[SDL_SCANCODE_LEFT]){
-            cmd_queue[MOVE_LEFT] = true;
-        }
-                       
-}
+auto cmd_queue = std::vector<Cmd>();
 
 int main(int argc, char *argv[])
 {
@@ -85,12 +55,51 @@ int main(int argc, char *argv[])
     auto previous_time = SDL_GetTicks();
     auto animation_start = SDL_GetTicks();//This is a ugly hack until we have our timer objects
 
-    while(!cmd_queue[EXIT]){
+    while(running){
+
         auto current_time = SDL_GetTicks();
         auto anim_current = SDL_GetTicks();
         auto dt = current_time-previous_time;
         auto anim_dt = anim_current - animation_start;    
-        manageInput();
+        SDL_PumpEvents();
+        //Object which will host the events to be processed
+        SDL_Event evt;
+        //While there is an event in the queue, handle it
+        while(SDL_PollEvent(&evt)){
+            //When the "X" at the top of the window is clicked, exit the loop
+            if(evt.type == SDL_QUIT){
+                /*I decided to use 0xFFFFFFFFFFFFFFFF as ID for commands that are not directed to any game entity such as:
+                - EXIT
+                - PAUSE
+                - SAVE
+                - LOAD
+                and so on...
+                */
+                cmd_queue.push_back({EXIT,0xFFFFFFFFFFFFFFFF});
+            }
+        }
+        
+        //get keyboard input
+        const Uint8* keys = SDL_GetKeyboardState(NULL);
+        //Depending on input -> dispatch command
+        //This depends on the current state!
+        if(keys[SDL_SCANCODE_ESCAPE]){
+            cmd_queue.push_back({EXIT,0xFFFFFFFFFFFFFFFF});
+        }
+
+        if(keys[SDL_SCANCODE_UP]){
+            cmd_queue.push_back({MOVE_UP,nums.ID()});
+        }
+        if(keys[SDL_SCANCODE_DOWN]){ 
+            cmd_queue.push_back({MOVE_DOWN,nums.ID()});
+        }
+        
+        if(keys[SDL_SCANCODE_RIGHT]){
+            cmd_queue.push_back({ MOVE_RIGHT, nums.ID()});
+        }
+        if(keys[SDL_SCANCODE_LEFT]){
+            cmd_queue.push_back({MOVE_LEFT, nums.ID()});
+        }
         
         //clear screen
         vid.clear();
@@ -104,37 +113,50 @@ int main(int argc, char *argv[])
         vid.draw(nums);
         //Blit on screen => More about page flipping and double buffering later in the series
         vid.flip();
+        
         sprt.move(sprt.drawRect().x+speed*dt,0);
-        if((sprt.drawRect().x+sprt.drawRect().w)>800 or sprt.drawRect().x < 0){
+        if((sprt.drawRect().x+sprt.drawRect().w)>800 || sprt.drawRect().x < 0){
             speed = -speed;
         }
         sprt2.move(0,sprt2.drawRect().y+speed2*dt);
-        if((sprt2.drawRect().y+sprt.drawRect().h)>450 or sprt2.drawRect().y < 0){
+        if((sprt2.drawRect().y+sprt.drawRect().h)>450 || sprt2.drawRect().y < 0){
             speed2 = -speed2;
         }
         
-        // std::cout<<dt<<std::endl;
         previous_time = current_time;
         if(anim_dt >= 500){
             animation_start = anim_current;
             nums.nextFrame();
         }
-        if(cmd_queue[MOVE_UP]){
-            nums.move(nums.drawRect().x,nums.drawRect().y-speed_num*dt);
-            cmd_queue[MOVE_UP] = false;
+        for(auto C:cmd_queue){
+            //for each command in the queue, find the object on which the command acts upon and perform it
+            //In this case, we do not have (yet) a list of game objects but only sprites.
+            //Therfore, I am not implementing the retrieve of each object but rather just calling the move function.
+            //Sprites will be in a map (ID, instance). Instance can be either a pointer or a reference to the Sprite object.
+            switch (C.first)
+            {
+            case MOVE_UP:
+                nums.move(nums.drawRect().x,nums.drawRect().y-speed_num*dt);
+                break;
+            case MOVE_DOWN:
+                nums.move(nums.drawRect().x,nums.drawRect().y+speed_num*dt);
+                break;
+            case MOVE_RIGHT:
+                nums.move(nums.drawRect().x+speed_num*dt,nums.drawRect().y);
+                break;
+            case MOVE_LEFT:
+                nums.move(nums.drawRect().x-speed_num*dt,nums.drawRect().y);
+                break;
+            case EXIT:
+                running = false;
+                break;
+            default:
+                break;
+            
+            }
+       
         }
-        if(cmd_queue[MOVE_DOWN]){
-            nums.move(nums.drawRect().x,nums.drawRect().y+speed_num*dt);
-            cmd_queue[MOVE_DOWN] = false;
-        }
-        if(cmd_queue[MOVE_RIGHT]){
-            nums.move(nums.drawRect().x+speed_num*dt,nums.drawRect().y);
-            cmd_queue[MOVE_RIGHT] = false;
-        }
-        if(cmd_queue[MOVE_LEFT]){
-            nums.move(nums.drawRect().x-speed_num*dt,nums.drawRect().y);
-            cmd_queue[MOVE_LEFT] = false;
-        }
+        cmd_queue.clear();
         SDL_Delay(FPS_INTERVAL);       
     }
     
