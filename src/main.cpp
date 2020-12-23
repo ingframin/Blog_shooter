@@ -26,11 +26,12 @@ typedef std::pair<Command,uint64_t> Cmd;
 //The C++ standard library conveniently provides a double ended queue container
 auto cmd_queue = std::deque<Cmd>();
 
+auto sprites = std::vector<Sprite*>();
+
 int main(int argc, char *argv[])
 {
     
     //Build the window with title "Blog Shooter".
-    //The window is centered in the screen, it is 800 pixels wide and 450 pixels high
     Video vid = Video("Blog Shooter!",1280,720);
     //Load the picture
     IMG_Init(IMG_INIT_PNG);
@@ -53,7 +54,11 @@ int main(int argc, char *argv[])
     sprt2.resize(sprt2.drawRect().w /3,sprt2.drawRect().h /3);
     nums.move(400,200);
     nums.resize(200,200);
-   
+    
+    sprites.push_back(&sprt);
+    sprites.push_back(&sprt2);
+    sprites.push_back(&nums);
+
     auto previous_time = SDL_GetTicks();
     auto animation_start = SDL_GetTicks();//This is a ugly hack until we have our timer objects
 
@@ -92,6 +97,7 @@ int main(int argc, char *argv[])
         if(keys[SDL_SCANCODE_UP]){
             cmd_queue.push_back({MOVE_UP,nums.ID()});
         }
+
         if(keys[SDL_SCANCODE_DOWN]){ 
             cmd_queue.push_back({MOVE_DOWN,nums.ID()});
         }
@@ -99,27 +105,18 @@ int main(int argc, char *argv[])
         if(keys[SDL_SCANCODE_RIGHT]){
             cmd_queue.push_back({ MOVE_RIGHT, nums.ID()});
         }
+        
         if(keys[SDL_SCANCODE_LEFT]){
             cmd_queue.push_back({MOVE_LEFT, nums.ID()});
         }
         
-        //clear screen
-        vid.clear();
-        //Set draw color to yellow
-        vid.setDrawColor(255,255,0);
-        //Draw a cross
-        vid.drawLine(100,100,300,300);
-        vid.drawLine(300,100, 100,300);
-        vid.draw(sprt);
-        vid.draw(sprt2);
-        vid.draw(nums);
-        //Blit on screen => More about page flipping and double buffering later in the series
-        vid.flip();
+        
         
         sprt.move(sprt.drawRect().x+speed*dt,0);
         if((sprt.drawRect().x+sprt.drawRect().w)>800 || sprt.drawRect().x < 0){
             speed = -speed;
         }
+
         sprt2.move(0,sprt2.drawRect().y+speed2*dt);
         if((sprt2.drawRect().y+sprt.drawRect().h)>450 || sprt2.drawRect().y < 0){
             speed2 = -speed2;
@@ -130,6 +127,7 @@ int main(int argc, char *argv[])
             animation_start = anim_current;
             nums.nextFrame();
         }
+
         while(!cmd_queue.empty()){
             //for each command in the queue, find the object on which the command acts upon and perform it
             //In this case, we do not have (yet) a list of game objects but only sprites.
@@ -158,10 +156,26 @@ int main(int argc, char *argv[])
             
             }
             cmd_queue.pop_front();
+
+        
        
         }
-        
+
+        //clear screen
+        vid.clear();
+        //Set draw color to yellow
+        vid.setDrawColor(255,255,0);
+        //Draw a cross
+        vid.drawLine(100,100,300,300);
+        vid.drawLine(300,100, 100,300);
+        for(auto s:sprites){
+            vid.draw(*s);
+        }
+        //Blit on screen => More about page flipping and double buffering later in the series
+        vid.flip();
+
         SDL_Delay(FPS_INTERVAL);       
+
     }//while
     
     
