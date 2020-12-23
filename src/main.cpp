@@ -1,6 +1,6 @@
 #include <iostream>
 #include <utility>
-#include <vector>
+#include <deque>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "video.h"
@@ -19,10 +19,12 @@ enum Command{
     EXIT, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT
 };
 
-
+//Let's make a compact form of a command to save some typing and add some clarity
 typedef std::pair<Command,uint64_t> Cmd;
 
-auto cmd_queue = std::vector<Cmd>();
+//Commands hav e to be put in a queue and processed sequentially.
+//The C++ standard library conveniently provides a double ended queue container
+auto cmd_queue = std::deque<Cmd>();
 
 int main(int argc, char *argv[])
 {
@@ -128,11 +130,12 @@ int main(int argc, char *argv[])
             animation_start = anim_current;
             nums.nextFrame();
         }
-        for(auto C:cmd_queue){
+        while(!cmd_queue.empty()){
             //for each command in the queue, find the object on which the command acts upon and perform it
             //In this case, we do not have (yet) a list of game objects but only sprites.
             //Therfore, I am not implementing the retrieve of each object but rather just calling the move function.
             //Sprites will be in a map (ID, instance). Instance can be either a pointer or a reference to the Sprite object.
+            Cmd C = cmd_queue.front();
             switch (C.first)
             {
             case MOVE_UP:
@@ -154,11 +157,12 @@ int main(int argc, char *argv[])
                 break;
             
             }
+            cmd_queue.pop_front();
        
         }
-        cmd_queue.clear();
+        
         SDL_Delay(FPS_INTERVAL);       
-    }
+    }//while
     
     
     return 0;
