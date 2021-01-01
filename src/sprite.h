@@ -9,10 +9,8 @@ class Sprite{
 
 public:
     
-    
     Sprite(int x, int y, int width, int height, uint64_t id, uint16_t frames = 1, int frameW = 0);
     
-
     //Move the sprite to position (x;y) in screen coordinates
     void move(int x, int y);
 
@@ -28,7 +26,7 @@ public:
 
     uint64_t ID() const {return id;}
 
-protected:
+private:
     //Drawing area in screen coordinates
     SDL_Rect rect;
     //Portion of the texture to be drawn
@@ -39,7 +37,6 @@ protected:
     //Number of frames
     uint16_t numFrames;
     uint16_t curFrame;
-    
     
 };
 

@@ -6,6 +6,8 @@
 #include "video.h"
 #include "geometry.h"
 #include "sprite.h"
+#include "commands.h"
+
 #define FPS_INTERVAL 2
 
 bool running = true;
@@ -13,11 +15,6 @@ bool running = true;
 auto speed = .25f;
 auto speed2 = .25f;
 auto speed_num = .25f;
-
-//Commands to dispatch
-enum Command{
-    EXIT, MOVE_UP, MOVE_DOWN, MOVE_LEFT, MOVE_RIGHT
-};
 
 //Let's make a compact form of a command to save some typing and add some clarity
 typedef std::pair<Command,uint64_t> Cmd;
@@ -76,14 +73,14 @@ int main(int argc, char *argv[])
         while(SDL_PollEvent(&evt)){
             //When the "X" at the top of the window is clicked, exit the loop
             if(evt.type == SDL_QUIT){
-                /*I decided to use 0xFFFFFFFFFFFFFFFF as ID for commands that are not directed to any game entity such as:
+                /*I decided to use GAME_ID as ID for commands that are not directed to any game entity such as:
                 - EXIT
                 - PAUSE
                 - SAVE
                 - LOAD
                 and so on...
                 */
-                cmd_queue.push_back({EXIT,0xFFFFFFFFFFFFFFFF});
+                cmd_queue.push_back({Command::EXIT,GAME_ID });
             }
         }
         
@@ -92,26 +89,24 @@ int main(int argc, char *argv[])
         //Depending on input -> dispatch command
         //This depends on the current state!
         if(keys[SDL_SCANCODE_ESCAPE]){
-            cmd_queue.push_back({EXIT,0xFFFFFFFFFFFFFFFF});
+            cmd_queue.push_back({Command::EXIT,GAME_ID});
         }
 
         if(keys[SDL_SCANCODE_UP]){
-            cmd_queue.push_back({MOVE_UP,nums.ID()});
+            cmd_queue.push_back({Command::MOVE_UP,nums.ID()});
         }
 
         if(keys[SDL_SCANCODE_DOWN]){ 
-            cmd_queue.push_back({MOVE_DOWN,nums.ID()});
+            cmd_queue.push_back({Command::MOVE_DOWN,nums.ID()});
         }
         
         if(keys[SDL_SCANCODE_RIGHT]){
-            cmd_queue.push_back({ MOVE_RIGHT, nums.ID()});
+            cmd_queue.push_back({Command::MOVE_RIGHT, nums.ID()});
         }
 
         if(keys[SDL_SCANCODE_LEFT]){
-            cmd_queue.push_back({MOVE_LEFT, nums.ID()});
+            cmd_queue.push_back({Command::MOVE_LEFT, nums.ID()});
         }
-        
-        
         
         sprt.move(sprt.drawRect().x+speed*dt,0);
         if((sprt.drawRect().x+sprt.drawRect().w)>800 || sprt.drawRect().x < 0){
@@ -137,29 +132,26 @@ int main(int argc, char *argv[])
             Cmd C = cmd_queue.front();
             switch (C.first)
             {
-            case MOVE_UP:
-                nums.move(nums.drawRect().x,nums.drawRect().y-speed_num*dt);
-                break;
-            case MOVE_DOWN:
-                nums.move(nums.drawRect().x,nums.drawRect().y+speed_num*dt);
-                break;
-            case MOVE_RIGHT:
-                nums.move(nums.drawRect().x+speed_num*dt,nums.drawRect().y);
-                break;
-            case MOVE_LEFT:
-                nums.move(nums.drawRect().x-speed_num*dt,nums.drawRect().y);
-                break;
-            case EXIT:
-                running = false;
-                break;
-            default:
-                break;
+                case Command::MOVE_UP:
+                    nums.move(nums.drawRect().x,nums.drawRect().y-speed_num*dt);
+                    break;
+                case Command::MOVE_DOWN:
+                    nums.move(nums.drawRect().x,nums.drawRect().y+speed_num*dt);
+                    break;
+                case Command::MOVE_RIGHT:
+                    nums.move(nums.drawRect().x+speed_num*dt,nums.drawRect().y);
+                    break;
+                case Command::MOVE_LEFT:
+                    nums.move(nums.drawRect().x-speed_num*dt,nums.drawRect().y);
+                    break;
+                case Command::EXIT:
+                    running = false;
+                    break;
+                default:
+                    break;
             
             }
             cmd_queue.pop_front();
-
-        
-       
         }
 
         //clear screen
@@ -168,7 +160,7 @@ int main(int argc, char *argv[])
         vid.setDrawColor(255,255,0);
         //Draw a cross
         vid.drawLine(100,100,300,300);
-        vid.drawLine(300,100, 100,300);
+        vid.drawLine(300,100,100,300);
         for(auto s:sprites){
             vid.draw(*s);
         }

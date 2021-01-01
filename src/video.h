@@ -1,5 +1,5 @@
-#ifndef VIDEOSUB
-#define VIDEOSUB
+#ifndef VIDEOSUB_H
+#define VIDEOSUB_H
 #include <SDL2/SDL.h>
 #include <vector>
 #include <string>
