@@ -1,6 +1,8 @@
 #include <iostream>
+#include <cstdio>
 #include <utility>
 #include <deque>
+#include <map>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "video.h"
@@ -16,14 +18,11 @@ auto speed = .25f;
 auto speed2 = .25f;
 auto speed_num = .25f;
 
-//Let's make a compact form of a command to save some typing and add some clarity
-typedef std::pair<Command,uint64_t> Cmd;
-
 //Commands hav e to be put in a queue and processed sequentially.
 //The C++ standard library conveniently provides a double ended queue container
 auto cmd_queue = std::deque<Cmd>();
 
-auto sprites = std::vector<Sprite*>();
+auto sprites = std::map<uint64_t, Sprite*>();
 
 int main(int argc, char *argv[])
 {
@@ -35,7 +34,7 @@ int main(int argc, char *argv[])
     SDL_Surface* tmp = IMG_Load("concept.png");
     //Generate Sprite
     Sprite sprt = vid.loadTexture(tmp);
-    Sprite sprt2 {sprt};
+    Sprite sprt2 = vid.loadTexture(tmp);
     //animated numbers
     SDL_Surface* numsurf = IMG_Load("anim_numbers.png");
     //The example image is 5 frames of 100 pixel each
@@ -48,14 +47,17 @@ int main(int argc, char *argv[])
     //Let's move the sprite from 0,0 and reduce its size
     sprt.move(350,10); 
     sprt.resize(sprt.drawRect().w /3,sprt.drawRect().h /3);
+    auto sprt_cmd = Command::MOVE_RIGHT;
+    auto sprt2_cmd = Command::MOVE_DOWN;
     sprt2.move(350,250);
     sprt2.resize(sprt2.drawRect().w /3,sprt2.drawRect().h /3);
     nums.move(400,200);
     nums.resize(200,200);
+
     
-    sprites.push_back(&sprt);
-    sprites.push_back(&sprt2);
-    sprites.push_back(&nums);
+    sprites.insert_or_assign(sprt.ID(),&sprt);
+    sprites.insert_or_assign(sprt2.ID(),&sprt2);
+    sprites.insert_or_assign(nums.ID(),&nums);
 
     auto previous_time = SDL_GetTicks();
     auto animation_start = SDL_GetTicks();//This is a ugly hack until we have our timer objects
@@ -108,15 +110,32 @@ int main(int argc, char *argv[])
             cmd_queue.push_back({Command::MOVE_LEFT, nums.ID()});
         }
         
-        sprt.move(sprt.drawRect().x+speed*dt,0);
-        if((sprt.drawRect().x+sprt.drawRect().w)>800 || sprt.drawRect().x < 0){
-            speed = -speed;
+        
+      
+        
+        
+        if(sprt.drawRect().x+sprt.drawRect().w > 1280){
+            sprt_cmd = Command::MOVE_LEFT;
         }
+        else if (sprt.drawRect().x < 0)
+        {
+            sprt_cmd = Command::MOVE_RIGHT;
+        }
+        
 
-        sprt2.move(0,sprt2.drawRect().y+speed2*dt);
-        if((sprt2.drawRect().y+sprt.drawRect().h)>450 || sprt2.drawRect().y < 0){
-            speed2 = -speed2;
+        cmd_queue.push_back({sprt_cmd,sprt.ID()});
+
+        if(sprt2.drawRect().y+sprt2.drawRect().h > 720){
+            sprt2_cmd = Command::MOVE_UP;
         }
+        else if (sprt2.drawRect().y < 0)
+        {
+            sprt2_cmd = Command::MOVE_DOWN;
+        }
+        
+
+        cmd_queue.push_back({sprt2_cmd,sprt2.ID()});
+
         
         previous_time = current_time;
         if(anim_dt >= 500){
@@ -130,19 +149,21 @@ int main(int argc, char *argv[])
             //Therfore, I am not implementing the retrieve of each object but rather just calling the move function.
             //Sprites will be in a map (ID, instance). Instance can be either a pointer or a reference to the Sprite object.
             Cmd C = cmd_queue.front();
+            auto cur = sprites[C.second];
+            //printf("%d",C.first);
             switch (C.first)
             {
                 case Command::MOVE_UP:
-                    nums.move(nums.drawRect().x,nums.drawRect().y-speed_num*dt);
+                    cur->move(cur->drawRect().x,cur->drawRect().y-speed_num*dt);
                     break;
                 case Command::MOVE_DOWN:
-                    nums.move(nums.drawRect().x,nums.drawRect().y+speed_num*dt);
+                    cur->move(cur->drawRect().x,cur->drawRect().y+speed_num*dt);
                     break;
                 case Command::MOVE_RIGHT:
-                    nums.move(nums.drawRect().x+speed_num*dt,nums.drawRect().y);
+                    cur->move(cur->drawRect().x+speed_num*dt,cur->drawRect().y);
                     break;
                 case Command::MOVE_LEFT:
-                    nums.move(nums.drawRect().x-speed_num*dt,nums.drawRect().y);
+                    cur->move(cur->drawRect().x-speed_num*dt,cur->drawRect().y);
                     break;
                 case Command::EXIT:
                     running = false;
@@ -162,7 +183,8 @@ int main(int argc, char *argv[])
         vid.drawLine(100,100,300,300);
         vid.drawLine(300,100,100,300);
         for(auto s:sprites){
-            vid.draw(*s);
+            auto sd = s.second;
+            vid.draw(*sd);
         }
         //Blit on screen => More about page flipping and double buffering later in the series
         vid.flip();

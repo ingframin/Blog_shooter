@@ -38,6 +38,7 @@ private:
     uint16_t numFrames;
     uint16_t curFrame;
     
+    
 };
 
 #endif
