@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cstdio>
+#include <cstdlib>
+#include <time.h> 
 #include <utility>
 #include <deque>
 #include <map>
@@ -10,7 +12,7 @@
 #include "sprite.h"
 #include "commands.h"
 
-#define FPS_INTERVAL 2
+#define FPS_INTERVAL 10
 
 bool running = true;
 
@@ -18,7 +20,7 @@ auto speed = .25f;
 auto speed2 = .25f;
 auto speed_num = .25f;
 
-//Commands hav e to be put in a queue and processed sequentially.
+//Commands have to be put in a queue and processed sequentially.
 //The C++ standard library conveniently provides a double ended queue container
 auto cmd_queue = std::deque<Cmd>();
 
@@ -27,7 +29,9 @@ auto sprites = std::map<uint64_t, Sprite*>();
 
 int main(int argc, char *argv[])
 {
-    
+    /* initialize random seed: */
+    srand (time(NULL));
+
     //Build the window with title "Blog Shooter".
     Video vid = Video("Blog Shooter!",1280,720);
     //Load the picture
@@ -110,6 +114,10 @@ int main(int argc, char *argv[])
         if(keys[SDL_SCANCODE_LEFT]){
             cmd_queue.push_back({Command::MOVE_LEFT, nums.ID()});
         }
+
+        if(keys[SDL_SCANCODE_SPACE]){
+            cmd_queue.push_back({Command::SHOOT, nums.ID()});
+        }
                 
         if(sprt.drawRect().x+sprt.drawRect().w > 1280){
             sprt_cmd = Command::MOVE_LEFT;
@@ -140,6 +148,11 @@ int main(int argc, char *argv[])
             nums.nextFrame();
         }
 
+        //clear screen
+        vid.clear();
+        //Set draw color to yellow
+        vid.setDrawColor(255,255,0);
+        
         while(!cmd_queue.empty()){
             //for each command in the queue, find the object on which the command acts upon and perform it
             //In this case, we do not have (yet) a list of game objects but only sprites.
@@ -162,6 +175,42 @@ int main(int argc, char *argv[])
                 case Command::MOVE_LEFT:
                     cur->move(cur->drawRect().x-speed_num*dt,cur->drawRect().y);
                     break;
+                case Command::SHOOT:{
+                    //Draw a resizing beam!!
+                    auto Xb = nums.drawRect().x+nums.drawRect().w;
+                    auto Yb1 = nums.drawRect().y+nums.drawRect().h*(1-0.3)/2;
+                    auto Yb2 = nums.drawRect().y+nums.drawRect().h*(1+0.3)/2;
+                    for(int c =0;c<4;c++){
+                        uint8_t r,g,b;
+                        r = rand()%256;
+                        g = rand()%256;
+                        b = rand()%256;
+                        vid.setDrawColor(r,g,b);
+                        vid.drawLine(Xb,Yb1+2*c,Xb+300,Yb1);
+                        vid.drawLine(Xb,Yb2+2*c,Xb+300,Yb2);
+                    }
+                    //Let's check for hits
+                    //!This code will go to a funciton eventually triggering whatever effect the weapons does!
+                    //Sprite 1
+                    if(Xb+300 > sprt.drawRect().x && Xb+300 < sprt.drawRect().x+sprt.drawRect().w){
+                        if(Yb1 > sprt.drawRect().y && Yb1 < sprt.drawRect().y+sprt.drawRect().h){
+                            sprt.resize(50,50);
+                        }
+                        if(Yb2 > sprt.drawRect().y && Yb2 < sprt.drawRect().y+sprt.drawRect().h){
+                            sprt.resize(200,200);
+                        }
+                    }
+                    //Sprite 2
+                    if(Xb+300 > sprt2.drawRect().x && Xb+300 < sprt2.drawRect().x+sprt2.drawRect().w){
+                        if(Yb1 > sprt2.drawRect().y && Yb1 < sprt2.drawRect().y+sprt2.drawRect().h){
+                            sprt2.resize(0.5);
+                        }
+                        if(Yb2 > sprt2.drawRect().y && Yb2 < sprt2.drawRect().y+sprt2.drawRect().h){
+                            sprt2.resize(1.5);
+                        }
+                    }
+                    break;
+                }
                 case Command::EXIT:
                     running = false;
                     break;
@@ -172,13 +221,9 @@ int main(int argc, char *argv[])
             cmd_queue.pop_front();
         }
 
-        //clear screen
-        vid.clear();
-        //Set draw color to yellow
-        vid.setDrawColor(255,255,0);
-        //Draw a cross
-        vid.drawLine(100,100,300,300);
-        vid.drawLine(300,100,100,300);
+        
+        
+        
         for(auto s:sprites){
             auto sd = s.second;
             vid.draw(*sd);

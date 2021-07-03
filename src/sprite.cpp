@@ -28,6 +28,10 @@ void Sprite::resize(int w, int h){
         rect.h = h;
     }
 
+void Sprite::resize(float scale){
+    rect.w *= scale;
+    rect.h *= scale;
+}
 void Sprite::restore(){
     rect.w = src.w;
     rect.h = src.h;

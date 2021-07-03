@@ -16,6 +16,7 @@ public:
 
     //Change the size of the rendering rectangle
     void resize(int w, int h);
+    void resize(float scale);
     //Restore the original size
     void restore();
 
