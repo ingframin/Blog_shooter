@@ -1,5 +1,5 @@
-#ifndef VIDEOSUB
-#define VIDEOSUB
+#ifndef VIDEOSUB_H
+#define VIDEOSUB_H
 #include <SDL2/SDL.h>
 #include <vector>
 #include <string>
@@ -28,7 +28,7 @@ public:
     
     //Present on screen the current draw buffer
     void flip();
-    //loads a sprite in the sprite buffer and returns its position/id. 
+    //loads a sprite in the sprite buffer 
     Sprite loadTexture(SDL_Surface* srf);
     //loads an animated sprite
     Sprite loadAnimation(SDL_Surface* srf, uint16_t numFrames, int frameW);

@@ -1,5 +1,5 @@
-#ifndef GEOMETRY
-#define GEOMETRY
+#ifndef GEOMETRY_H
+#define GEOMETRY_H
 #include <cmath>
 #include <vector>
 
@@ -27,6 +27,8 @@ namespace blg_math{
         double mod() const;
         //Distance between 2 vectors
         double distance(const Vect2d& v2) const;
+        //Angle between the vector and the X axis (radians)
+        double ang2x() const;
     };
 
     

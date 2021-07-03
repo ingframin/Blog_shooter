@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "geometry.h"
 
 namespace blg_math{
@@ -52,7 +54,32 @@ namespace blg_math{
         return sqrt((x-v2.x)*(x-v2.x)+(y-v2.y)*(y-v2.y));
     }
 
+    double Vect2d::ang2x() const{
+        double ang;
+        if(x == 0){
+            if(y>0){
+                ang = M_PI/2;
+            }
+            else
+            {
+                ang = 3*M_PI/2;
+            }
+        }
+        else{
+            ang = atan2(y,x);
+            if(x<0){
+                if(y>0){
+                    ang += M_PI/2;
+                }
+                else
+                {
+                    ang += M_PI;
+                }
+            }
+        }
+        
+        return ang;
+    }
           
-    
     
 }
