@@ -181,10 +181,11 @@ int main(int argc, char *argv[])
                     auto Yb1 = nums.drawRect().y+nums.drawRect().h*(1-0.3)/2;
                     auto Yb2 = nums.drawRect().y+nums.drawRect().h*(1+0.3)/2;
                     for(int c =0;c<4;c++){
+                        // Select a random color
                         uint8_t r,g,b;
-                        r = rand()%256;
-                        g = rand()%256;
-                        b = rand()%256;
+                        r = rand()%255;
+                        g = rand()%255;
+                        b = rand()%255;
                         vid.setDrawColor(r,g,b);
                         vid.drawLine(Xb,Yb1+2*c,Xb+300,Yb1);
                         vid.drawLine(Xb,Yb2+2*c,Xb+300,Yb2);
