@@ -24,6 +24,7 @@ auto cmd_queue = std::deque<Cmd>();
 
 auto sprites = std::map<uint64_t, Sprite*>();
 
+
 int main(int argc, char *argv[])
 {
     
@@ -109,11 +110,7 @@ int main(int argc, char *argv[])
         if(keys[SDL_SCANCODE_LEFT]){
             cmd_queue.push_back({Command::MOVE_LEFT, nums.ID()});
         }
-        
-        
-      
-        
-        
+                
         if(sprt.drawRect().x+sprt.drawRect().w > 1280){
             sprt_cmd = Command::MOVE_LEFT;
         }

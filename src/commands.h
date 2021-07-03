@@ -17,6 +17,6 @@ enum class Command{
 //Let's make a compact form of a command to save some typing and add some clarity
 typedef std::pair<Command,uint64_t> Cmd;
 
-
+void dispatch(Cmd command, std::map<uint64_t,Sprite*> sprites, uint64_t dt);
 
 #endif
